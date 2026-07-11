@@ -47,6 +47,8 @@ graph TD
     B -->|structurer.py| C(Structured Metadata JSON)
     C -->|item_parser.py| C
     
+    
+    
     %% Embedding Pipeline
     C -->|embedding.py| D[Sentence Transformers]
     D -->|Store Vectors| E[(ChromaDB)]
