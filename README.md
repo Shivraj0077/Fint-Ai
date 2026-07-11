@@ -1,9 +1,6 @@
-Here is a detailed README template you can use for your project. It includes an overview of the RAG architecture, instructions, the project structure, and a Mermaid diagram that visualizes how the components interact! 
-
-You can create a `README.md` file in the root of your project and paste this in:
-
-```markdown
 # Hybrid Invoice RAG Chatbot 🧾🤖
+
+![Terminal Execution Screenshot](image.png)
 
 A powerful, production-ready Retrieval-Augmented Generation (RAG) pipeline designed to process, structure, and accurately answer questions across hundreds of PDF invoices.
 
