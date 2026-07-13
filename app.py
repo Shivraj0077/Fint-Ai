@@ -52,11 +52,12 @@ if prompt := st.chat_input("Ask a question about your invoices..."):
     with st.chat_message("user"):
         st.markdown(prompt)
     
+    history = list(current_messages)
     current_messages.append({"role": "user", "content": prompt})
 
     with st.chat_message("assistant"):
         with st.spinner("Scanning vector store..."):
-            response = rag.ask(prompt)
+            response = rag.ask(prompt, history)
         st.markdown(response)
     
     current_messages.append({"role": "assistant", "content": response})

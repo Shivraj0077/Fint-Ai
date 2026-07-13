@@ -29,61 +29,61 @@ class InvoiceRAG:
 
 
 
-    def ask(self, question):
+    def ask(self, question, history=None):
+
+        standalone_question = question
+        if history:
+            history_text = ""
+            for msg in history:
+                history_text += f"{msg['role'].capitalize()}: {msg['content']}\n"
+            
+            condense_prompt = f"""Given the following conversation history and a follow-up question, rephrase the follow-up question to be a standalone question that can be understood without the context of the conversation. Do not answer the question, just rephrase it or output it as is if it is already standalone.
+
+Conversation History:
+{history_text}
+
+Follow-up Question:
+{question}
+
+Standalone Question:"""
+            
+            condense_response = self.llm.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": condense_prompt}]
+            )
+            standalone_question = condense_response.choices[0].message.content.strip()
 
         embedding = self.embedder.encode(
-            question
+            standalone_question
         ).tolist()
 
         results = self.collection.query(
-
             query_embeddings=[embedding],
-
             n_results=5
-
         )
 
         context = "\n\n".join(
             results["documents"][0]
         )
 
-        prompt = f"""
-You are an invoice assistant.
+        context_prompt = f"""You are an invoice assistant.
 
-Answer ONLY using the context.
-
-Dont show your process run the process 
-internally and for complex questions solve them and 
-give a summarised answer of your response.
+Answer ONLY using the provided Context.
+Dont show your process run the process internally and for complex questions solve them and give a summarised answer of your response.
 always answer in rs not dollars
 
 Context:
+{context}"""
 
-{context}
-
-Question:
-
-{question}
-"""
+        messages = [{"role": "system", "content": context_prompt}]
+        if history:
+            for msg in history:
+                messages.append({"role": msg["role"], "content": msg["content"]})
+        messages.append({"role": "user", "content": question})
 
         response = self.llm.chat.completions.create(
-
             model="llama-3.1-8b-instant",
-
-            messages=[
-
-                {
-
-                    "role":"user",
-
-                    "content":prompt
-
-                }
-
-            ]
-
+            messages=messages
         )
-
-        
 
         return response.choices[0].message.content
